@@ -1,9 +1,8 @@
-
 const tfjs = require('@tensorflow/tfjs-node');
 
 function loadModel() {
-  const modelUrl = "gs://adwira-bucket/models/model.json";
-  return tf.loadGraphModel(modelUrl);
+  const modelUrl = "https://storage.googleapis.com/adwira-bucket/models/model.json";
+  return tfjs.loadGraphModel(modelUrl);
 }   
 
 async function predict(model, imageBuffer) {
