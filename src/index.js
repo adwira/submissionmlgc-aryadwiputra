@@ -1,6 +1,7 @@
     const Hapi = require('@hapi/hapi');
     const crypto = require('crypto');
     const  store_data = require('./data');
+    const getAllData = require('./getData')
     const { loadModel, predict } = require('./inference');
 
     const init = async () => {
@@ -9,7 +10,7 @@
             host: '0.0.0.0',
             routes: {
                 cors: {
-                    origin: ['*'],
+                    origin: ['https://frontend-dot-submissionmlgc-aryadwiputra.lm.r.appspot.com/'],
                 },
             },
         });
@@ -116,14 +117,44 @@
                 }
             },
             options: {
-                payload: { 
-                    allow: ['multipart/form-data'],
-                    multipart:true,
-                    maxBytes: 100000000
-                }
-            }
+              payload: { 
+                  allow: ['multipart/form-data'],
+                  multipart:true,
+                  maxBytes: 100000000
+              }
+          } 
         });
 
+        server.route({
+          method : 'GET',
+            path : '/predict/histories',
+            handler : async (req, h) => {
+              const historiesData = await getAllData();
+
+              const formatHistoriesData = [];
+              console.log(historiesData);
+
+              historiesData.forEach(doc => {
+                const data = doc.data();
+                formatHistoriesData.push({
+                  id: doc.id,
+                  history:{
+                    result: data.result,
+                    createdAt: data.createdAt,
+                    suggestion: data.suggestion,
+                    id: doc.id
+                  }
+                })
+              });
+
+              const response = h.response({
+                status:'success',
+                data: formatHistoriesData
+              })
+              response.code(200)
+              return response
+            },
+        })
         await server.start();
         console.log(`Server berjalan pada ${server.info.uri}`);
     };
